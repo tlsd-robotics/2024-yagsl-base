@@ -20,6 +20,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import TLsdLibrary.Controllers.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -30,10 +31,10 @@ public class RobotContainer
 {
 
   // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/neo"));
+  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   // CommandJoystick rotationController = new CommandJoystick(1);
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  Joystick joy = new Joystick(0);
+  T16000M joy = new T16000M(0);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -44,16 +45,13 @@ public class RobotContainer
     configureBindings();
 
     AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
-                                                                   () -> MathUtil.applyDeadband(joy.getRawAxis(1),
-                                                                                                OperatorConstants.LEFT_Y_DEADBAND),
-                                                                   () -> MathUtil.applyDeadband(joy.getRawAxis(0),
-                                                                                                OperatorConstants.LEFT_X_DEADBAND),
-                                                                   () -> MathUtil.applyDeadband(joy.getRawAxis(2),
-                                                                                                OperatorConstants.RIGHT_X_DEADBAND),
-                                                                   () -> joy.getRawButton(11),
-                                                                   () -> joy.getRawButton(12),
-                                                                   () -> joy.getRawButton(13),
-                                                                   () -> joy.getRawButton(14));
+                                                                   () -> MathUtil.applyDeadband(joy.getRawY(), OperatorConstants.Y_DEADBAND),
+                                                                   () -> MathUtil.applyDeadband(joy.getRawX(), OperatorConstants.X_DEADBAND),
+                                                                   () -> MathUtil.applyDeadband(joy.getRawZ(), OperatorConstants.Z_DEADBAND),
+                                                                   () -> joy.getButtonBoolean(11),
+                                                                   () -> joy.getButtonBoolean(12),
+                                                                   () -> joy.getButtonBoolean(13),
+                                                                   () -> joy.getButtonBoolean(14));
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
@@ -61,10 +59,10 @@ public class RobotContainer
     // left stick controls translation
     // right stick controls the desired angle NOT angular rotation
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(joy.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(joy.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
-        () -> joy.getRawAxis(2),
-        () -> joy.getRawAxis(1));
+        () -> MathUtil.applyDeadband(joy.getRawY(), OperatorConstants.Y_DEADBAND),
+        () -> MathUtil.applyDeadband(joy.getRawX(), OperatorConstants.X_DEADBAND),
+        () -> joy.getRawZ(),
+        () -> joy.getRawY());
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot f
@@ -72,14 +70,14 @@ public class RobotContainer
     // left stick controls translation
     // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-joy.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-joy.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
-        () -> -joy.getRawAxis(2));
+        () -> MathUtil.applyDeadband(-joy.getRawY(), OperatorConstants.Y_DEADBAND),
+        () -> MathUtil.applyDeadband(-joy.getRawX(), OperatorConstants.X_DEADBAND),
+        () -> -joy.getRawZ());
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
-        () -> MathUtil.applyDeadband(joy.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(joy.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
-        () -> joy.getRawAxis(2));
+        () -> MathUtil.applyDeadband(joy.getRawY(), OperatorConstants.Y_DEADBAND),
+        () -> MathUtil.applyDeadband(joy.getRawX(), OperatorConstants.X_DEADBAND),
+        () -> joy.getRawZ());
 
     drivebase.setDefaultCommand(
         !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
@@ -96,8 +94,8 @@ public class RobotContainer
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
-    new JoystickButton(joy, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
-    new JoystickButton(joy, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
+    joy.getTrigger().onTrue((new InstantCommand(drivebase::zeroGyro)));
+    joy.getLeft().onTrue(new InstantCommand(drivebase::addFakeVisionReading));
 //    new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
   }
 

@@ -44,9 +44,9 @@ public final class Constants
   {
 
     // Joystick Deadband
-    public static final double LEFT_X_DEADBAND  = 0.01;
-    public static final double LEFT_Y_DEADBAND  = 0.01;
-    public static final double RIGHT_X_DEADBAND = 0.01;
+    public static final double X_DEADBAND  = 0.01;
+    public static final double Y_DEADBAND  = 0.01;
+    public static final double Z_DEADBAND = 0.01;
     public static final double TURN_CONSTANT    = 6;
   }
 }
